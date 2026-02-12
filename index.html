@@ -11,9 +11,17 @@
     <button onclick="cleanAll()">全削除</button>
 
     <ul id="todo-list"></ul>
+
+    <button onclick="setFiler('all')">すべて</button>
+    <button onclick="setFiler('active')">未完了</button>
+    <button onclick="setFiler('completed')">完了</button>
+
+    <p id="count"></p>
     
     <script>
         let todos = [];
+
+        let filterMode = "all";
 
         loadTodos();
 
@@ -40,13 +48,25 @@
             displayTodos();
         }
 
+        function setFiler(mode){
+            filterMode = mode;
+            displayTodos();
+        }
+
         function displayTodos(){
             const list = document.getElementById("todo-list");
             let html = "";
-            for(let i = 0; i < todos.length; i++){
+            let filteredTodos = todos;
+            if(filterMode === "active"){
+                filteredTodos = todos.filter(todo => !todo.completed);
+            }
+            if(filterMode === "completed"){
+                filteredTodos = todos.filter(todo => todo.completed);
+            }
+            for(let i = 0; i < filteredTodos.length; i++){
                 let checked = "";
                 let style = "";
-                if(todos[i].completed){
+                if(filteredTodos[i].completed){
                     checked = "checked"
                     style = "style='text-decoration: line-through;'"
                 }
@@ -54,16 +74,29 @@
                     + "<input type='checkbox' " 
                     + checked 
                     + " onclick='toggleTodo(" + i + ")'>"
-                    + todos[i].text
+                    + filteredTodos[i].text
                     + "<button onclick='deleteTodo(" + i + ")'>削除</button>"
+                    + "<button onclick='editTodo(" + i + ")'>編集</button>"
                     + "</li>"
             }
             list.innerHTML = html;
+
+            document.getElementById("count").textContent =
+             "未完了: " + todos.filter(todo => !todo.completed).length;
         }
 
         function deleteTodo(index){
             if(confirm("削除しますか？")){
                 todos.splice(index, 1);
+                saveTodos();
+                displayTodos();
+            }
+        }
+
+        function editTodo(index){
+            const newText = prompt("編集内容を入力", todos[index].text);
+            if(newText !== null){
+                todos[index].text = newText.trim();
                 saveTodos();
                 displayTodos();
             }
