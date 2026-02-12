@@ -11,6 +11,83 @@
 
     <ul id="todo-list"></ul>
     
-    <script src="todo-script.js"></script>
+    <script>
+        let todos = [];
+
+        loadTodos();
+
+        displayTodos();
+
+        function loadTodos(){
+            const data = localStorage.getItem("todos");
+            if(data){
+                todos = JSON.parse(data);
+            }
+        }
+
+        function addTodo(){
+            const input = document.getElementById("todo-input");
+            const text = input.value.trim();
+            if(text === ""){
+                return;
+            }
+            todos.push({
+                text: text, completed: false
+            });
+            input.value = "";
+            saveTodos();
+            displayTodos();
+        }
+
+        function displayTodos(){
+            const list = document.getElementById("todo-list");
+            let html = "";
+            for(let i = 0; i < todos.length; i++){
+                let checked = "";
+                let style = "";
+                if(todos[i].completed){
+                    checked = "checked"
+                    style = "style='text-decoration: line-through;'"
+                }
+                html += "<li " + style + ">" 
+                    + "<input type='checkbox' " 
+                    + checked 
+                    + " onclick='toggleTodo(" + i + ")'>"
+                    + todos[i].text
+                    + "<button onclick='deleteTodo(" + i + ")'>çÌèú</button>"
+                    + "</li>"
+            }
+            list.innerHTML = html;
+        }
+
+        function deleteTodo(index){
+            if(confirm("çÌèúÇµÇ‹Ç∑Ç©ÅH")){
+                todos.splice(index, 1);
+                saveTodos();
+                displayTodos();
+            }
+        }
+
+        function saveTodos(){
+            localStorage.setItem("todos", JSON.stringify(todos));
+        }
+
+        function toggleTodo(index){
+            todos[index].completed = !todos[index].completed;
+            saveTodos();
+            displayTodos();
+        }
+
+        function handleKey(event){
+            if(event.key === "Enter"){
+                addTodo();
+            }
+        }
+
+        function init(){
+            loadTodos();
+            displayTodos();
+        }
+    </script>
 </body>
 </html>
